@@ -113,18 +113,17 @@ MongoClient.connect(connectionURL, { useNewUrlParser: true }, (err, client) => {
   //   });
 
   /* Find the first five records and print their name and indexes */
-  const firstFiveDocuments = db
-    .collection(databaseNames.USERS)
+  db.collection(databaseNames.USERS)
     .find()
     .limit(5)
-    .toArray();
-  firstFiveDocuments.then((res) => {
-    for (let elem of res) {
-      const name = elem.name;
-      const age = elem.age;
-      console.log(`${name} is ${age} years old`);
-    }
-  });
+    .toArray()
+    .then((res) => {
+      for (let elem of res) {
+        const name = elem.name;
+        const age = elem.age;
+        console.log(`${name} is ${age} years old`);
+      }
+    });
 
   /* Delete records */
 });
