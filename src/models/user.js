@@ -32,9 +32,10 @@ const User = mongoose.model("User", {
   password: {
     type: String,
     trim: true,
+    minlength: 7,
     required: true,
     validate(value) {
-      if (value.length < 6 || value.includes("password")) {
+      if (value.includes("password")) {
         throw new Error("Invalid password field");
       }
     },
