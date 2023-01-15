@@ -18,6 +18,19 @@ router.post("/users", async (req, res) => {
   }
 });
 
+// allow users to log in
+router.post("/users/login", async (req, res) => {
+  try {
+    const user = await User.findByCredentials(
+      req.body.email,
+      req.body.password
+    );
+    res.status(200).send(user);
+  } catch (e) {
+    res.status(400).send();
+  }
+});
+
 // reads the whole users collection and sends it to the client
 router.get("/users", async (req, res) => {
   try {
@@ -61,11 +74,15 @@ router.patch("/users/:id", async (req, res) => {
   }
 
   try {
-    // setting new: true will return the new user with the updates routerlied
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
+    // setting new: true will return the new user with the updates
+    const user = await User.findById(req.params.id);
+
+    updates.forEach((update) => {
+      user[update] = req.body[update];
     });
+
+    await user.save();
+
     if (!user) {
       return res.status(404).send();
     }

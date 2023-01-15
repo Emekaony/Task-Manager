@@ -1,7 +1,7 @@
 const express = require("express");
-const userRouter = require("./routers/user");
-const taskRouter = require("./routers/tasks");
-const homeRouter = require("./routers/home");
+const userRouter = require("./routes/user");
+const taskRouter = require("./routes/tasks");
+const homeRouter = require("./routes/home");
 require("./db/mongoose");
 
 // set up app and PORT
@@ -20,3 +20,17 @@ app.use(homeRouter);
 app.listen(port, () => {
   console.log(`App is listening on port ${port}`);
 });
+
+const bcrypt = require("bcryptjs");
+
+const myFunction = async () => {
+  const password = "red12345";
+  const hashedPassword = await bcrypt.hash(password, 8);
+
+  console.log(password, hashedPassword);
+
+  const isMatch = await bcrypt.compare(password, hashedPassword);
+  console.log(isMatch);
+};
+
+myFunction();
