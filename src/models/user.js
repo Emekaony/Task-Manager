@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -42,10 +43,19 @@ const userSchema = new mongoose.Schema({
       }
     },
   },
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
 
 // use this to add fields to the user model
 userSchema.statics.findByCredentials = async (email, password) => {
+  // because we set the email to be a unique field, only one result is possible
   const user = await User.findOne({ email });
   if (!user) {
     throw new Error("Unable to login");
@@ -59,14 +69,25 @@ userSchema.statics.findByCredentials = async (email, password) => {
   return user;
 };
 
-// Hash the plain text password before saving
+// these methods are accessible on instances
+userSchema.methods.generateAuthToken = async function () {
+  const user = this;
+  const token = jwt.sign({ _id: user._id.toString() }, "thisismynewcourse");
+
+  // save tokens to the database
+  user.tokens = user.tokens.concat({ token });
+  await user.save();
+
+  return token;
+};
+
+//use mongoose pre hooks to hash the plain text password before saving
 userSchema.pre("save", async function (next) {
   const user = this;
-
+  // mongodb has this nice method that lets us know when a field in a document is modified
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 8);
   }
-
   next();
 });
 

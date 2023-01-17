@@ -11,8 +11,10 @@ router.post("/users", async (req, res) => {
   const user = new User(req.body);
 
   try {
+    const token = await user.generateAuthToken();
+
     await user.save();
-    res.status(201).send(user);
+    res.status(201).send({ user, token });
   } catch (e) {
     res.status(400).send(e);
   }
@@ -21,11 +23,14 @@ router.post("/users", async (req, res) => {
 // allow users to log in
 router.post("/users/login", async (req, res) => {
   try {
+    // this is a game changer right here
+    // the ability to define your own methods on models
     const user = await User.findByCredentials(
       req.body.email,
       req.body.password
     );
-    res.status(200).send(user);
+    const token = await user.generateAuthToken();
+    res.status(200).send({ user, token });
   } catch (e) {
     res.status(400).send();
   }
